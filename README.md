@@ -10,11 +10,7 @@ Example sqlx (mysql) insert code:
 
 ```
 func (s *MySQL) InsertUser(ctx context.Context, user *myapp.User) (int64, error) {
-    query := `INSERT INTO user(
-        email,
-        password,
-        created_at
-    ) values (?,?,UNIX_TIMESTAMP(now()))`
+    query := `INSERT INTO user(email,password,created_at) values (?,?,now())`
     res, err := s.DB.ExecContext(ctx, sql, user.Email, user.Password)
 
     if err != nil {
@@ -34,12 +30,7 @@ with sqlex we can write this much simpler
 
 ```
 func (m *Model) InsertUser(ctx context.Context, user *myapp.User) (int64, error) {
-    query := `INSERT INTO user(
-        email,
-        password,
-        created_at
-    ) values (?,?,UNIX_TIMESTAMP(now()))`
-
+    query := `INSERT INTO user(email,password,created_at) values (?,?,now())`
     return m.DB.InsertContext(ctx, query, user.Email, user.Password)
 }
 ```
