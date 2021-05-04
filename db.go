@@ -41,6 +41,20 @@ type DB struct {
 	*sqlx.DB
 }
 
+// Open is the same as sql.Open, but returns an *sqlex.DB instead.
+func Open(driverName, dataSourceName string) (*DB, error) {
+	db, err := sqlx.Open(driverName, dataSourceName)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+	return &DB{db}, nil
+}
+
 func (s *DB) InsertContext(ctx context.Context, query string, args ...interface{}) (int64, error) {
 	result, err := s.DB.ExecContext(ctx, query, args...)
 	if err != nil {
@@ -131,14 +145,10 @@ func (s *DB) GetOrCreate(ctx context.Context, dest interface{}, selectQuery, ins
 	return err
 }
 
-// func (s *Instance) DeleteOne(query string, args ...interface{}) error {
-// 	return s.UpdateOne(query, args)
-// }
-
 // InsertContextPsql inserts a single record reading RETURNING id
 func (s *DB) InsertContextPsql(ctx context.Context, query string, args ...interface{}) (int64, error) {
 	row := s.DB.QueryRowContext(ctx, query, args...)
-	// TODO: GetContext for
+	// TODO: GetContext for multi-value returns
 	var id int64
 	if err := row.Scan(&id); err != nil {
 		return 0, err
